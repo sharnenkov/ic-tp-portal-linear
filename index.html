@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IC.TP — Дашборд проекта</title>
+  <meta name="description" content="Статус проекта IC.TP: дорожная карта, индекс зрелости, задачи участников, инструменты.">
+  <meta property="og:title" content="IC.TP — Дашборд проекта">
+  <meta property="og:description" content="Статус проекта IC.TP: дорожная карта, индекс зрелости, задачи участников, инструменты.">
+  <meta property="og:url" content="https://ic-tp-portal-linear.vercel.app/">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { -webkit-font-smoothing: antialiased; }
+
+    :root {
+      --bg:           #0f0f11;
+      --sidebar-bg:   #131316;
+      --surface:      rgba(255,255,255,0.03);
+      --surface-h:    rgba(255,255,255,0.055);
+      --border:       rgba(255,255,255,0.07);
+      --border-s:     rgba(255,255,255,0.12);
+      --accent:       #5e6ad2;
+      --accent-dim:   rgba(94,106,210,0.14);
+      --accent-t:     rgba(94,106,210,0.07);
+      --green:        #4caf7d;
+      --green-dim:    rgba(76,175,125,0.12);
+      --amber:        #e8a838;
+      --amber-dim:    rgba(232,168,56,0.12);
+      --red:          #e54d42;
+      --red-dim:      rgba(229,77,66,0.12);
+      --text:         #e2e2ec;
+      --muted:        #8a8a9a;
+      --faint:        #50505f;
+      --font:         'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      --mono:         'SF Mono', 'Fira Code', monospace;
+      --sidebar-w:    216px;
+    }
+
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      font-size: 14px;
+      line-height: 1.5;
+      min-height: 100vh;
+      display: flex;
+    }
+
+    /* ── SIDEBAR ──────────────────────────────────────────── */
+    .sidebar {
+      width: var(--sidebar-w);
+      flex-shrink: 0;
+      background: var(--sidebar-bg);
+      border-right: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      position: sticky;
+      top: 0;
+      overflow-y: auto;
+    }
+
+    .sidebar-logo {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 16px 14px 12px;
+      border-bottom: 1px solid var(--border);
+    }
+    .logo-mark {
+      width: 24px; height: 24px;
+      background: linear-gradient(135deg, var(--accent), #7c6fd4);
+      border-radius: 6px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 700; color: #fff; flex-shrink: 0;
+    }
+    .logo-name  { font-size: 13px; font-weight: 600; letter-spacing: -0.01em; }
+    .logo-team  { font-size: 10px; color: var(--faint); margin-top: 1px; letter-spacing: 0.02em; }
+
+    .sidebar-section {
+      padding: 18px 8px 4px;
+    }
+    .sidebar-section-label {
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--faint);
+      padding: 0 8px;
+      margin-bottom: 2px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 8px;
+      border-radius: 6px;
+      cursor: pointer;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 500;
+      transition: background 100ms, color 100ms;
+      user-select: none;
+    }
+    .nav-item:hover { background: var(--surface-h); color: var(--text); }
+    .nav-item.active { background: var(--surface-h); color: var(--text); }
+    .nav-item .nav-icon { font-size: 14px; width: 18px; text-align: center; flex-shrink: 0; }
+    .nav-badge {
+      margin-left: auto;
+      font-size: 11px;
+      color: var(--faint);
+      font-variant-numeric: tabular-nums;
+    }
+
+    .sidebar-footer {
+      margin-top: auto;
+      padding: 12px 8px;
+      border-top: 1px solid var(--border);
+    }
+    .sidebar-date { font-size: 11px; color: var(--faint); padding: 4px 8px; font-family: var(--mono); }
+
+    /* ── MAIN ─────────────────────────────────────────────── */
+    .main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      overflow-y: auto;
+    }
+
+    .topbar {
+      height: 48px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 28px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: var(--bg);
+    }
+    .topbar-title { font-size: 13px; font-weight: 600; color: var(--text); }
+    .topbar-meta  { font-size: 12px; color: var(--faint); display: flex; align-items: center; gap: 10px; }
+    .refresh-btn {
+      display: inline-flex; align-items: center;
+      background: var(--surface); border: 1px solid var(--border);
+      color: var(--muted); font: inherit; font-size: 12px;
+      padding: 4px 10px; border-radius: 5px; cursor: pointer;
+      transition: border-color 100ms, color 100ms;
+    }
+    .refresh-btn:hover { border-color: var(--border-s); color: var(--text); }
+
+    .content {
+      padding: 28px 36px 64px;
+      max-width: 900px;
+    }
+
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* ── SECTION ──────────────────────────────────────────── */
+    .section { margin-bottom: 32px; }
+    .section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    .section-label {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--faint);
+    }
+
+    /* ── STATS ROW ────────────────────────────────────────── */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1px;
+      background: var(--border);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 32px;
+    }
+    .stat {
+      background: var(--bg);
+      padding: 16px 18px;
+      cursor: default;
+      transition: background 100ms;
+    }
+    .stat.clickable { cursor: pointer; }
+    .stat.clickable:hover { background: var(--surface-h); }
+    .stat-label { font-size: 11px; color: var(--faint); margin-bottom: 6px; font-weight: 500; }
+    .stat-value { font-size: 24px; font-weight: 700; line-height: 1; font-variant-numeric: tabular-nums; letter-spacing: -0.02em; }
+    .stat-value.c-accent { color: var(--accent); }
+    .stat-value.c-green  { color: var(--green); }
+    .stat-value.c-amber  { color: var(--amber); }
+    .stat-value.c-red    { color: var(--red); }
+    .stat-sub { font-size: 11px; color: var(--faint); margin-top: 4px; }
+
+    /* ── ISSUE LIST ───────────────────────────────────────── */
+    .issue-list {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .issue-group-head {
+      padding: 8px 14px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+      color: var(--faint);
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+    }
+    .issue-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 14px;
+      border-bottom: 1px solid var(--border);
+      transition: background 100ms;
+      font-size: 13px;
+    }
+    .issue-row:last-child { border-bottom: none; }
+    .issue-row:hover { background: var(--surface-h); }
+    .status-dot {
+      width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0;
+    }
+    .sd-done    { background: var(--green); }
+    .sd-active  { background: var(--accent); box-shadow: 0 0 5px rgba(94,106,210,0.6); }
+    .sd-pending { background: transparent; border: 1.5px solid var(--faint); }
+    .sd-amber   { background: var(--amber); }
+    .issue-id   { font-family: var(--mono); font-size: 11px; color: var(--faint); flex-shrink: 0; min-width: 32px; }
+    .issue-title { flex: 1; color: var(--text); }
+    .issue-meta  { font-size: 11px; color: var(--faint); white-space: nowrap; }
+    .issue-tag {
+      display: inline-flex; align-items: center;
+      padding: 2px 7px; border-radius: 4px;
+      font-size: 11px; font-weight: 500; border: 1px solid transparent;
+    }
+    .tag-green  { color: var(--green); background: var(--green-dim); border-color: rgba(76,175,125,0.2); }
+    .tag-amber  { color: var(--amber); background: var(--amber-dim); border-color: rgba(232,168,56,0.2); }
+    .tag-accent { color: #9ba8f5;      background: var(--accent-dim); border-color: rgba(94,106,210,0.25); }
+    .tag-muted  { color: var(--muted); background: var(--surface);    border-color: var(--border); }
+
+    /* ── MILESTONE LIST ───────────────────────────────────── */
+    .ms-list {
+      display: flex;
+      flex-direction: column;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .ms-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 16px;
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+      transition: background 100ms;
+    }
+    .ms-row:last-child { border-bottom: none; }
+    .ms-row:hover { background: var(--surface-h); }
+    .ms-name  { flex: 1; font-weight: 500; }
+    .ms-date  { font-family: var(--mono); font-size: 11px; color: var(--faint); }
+
+    /* ── DECISION LIST ────────────────────────────────────── */
+    .decision-list {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .decision-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+      transition: background 100ms;
+    }
+    .decision-row:last-child { border-bottom: none; }
+    .decision-row:hover { background: var(--surface-h); }
+    .decision-code {
+      font-family: var(--mono); font-size: 10px;
+      color: #9ba8f5; background: var(--accent-dim);
+      padding: 2px 6px; border-radius: 4px;
+      flex-shrink: 0; margin-top: 2px;
+      border: 1px solid rgba(94,106,210,0.2);
+    }
+
+    /* ── NEXT STEPS ───────────────────────────────────────── */
+    .step-list {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .step-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--border);
+      font-size: 13px;
+      transition: background 100ms;
+    }
+    .step-row:last-child { border-bottom: none; }
+    .step-row:hover { background: var(--surface-h); }
+    .step-n {
+      width: 18px; height: 18px; border-radius: 50%;
+      background: var(--accent-t); border: 1px solid rgba(94,106,210,0.3);
+      color: #9ba8f5; font-size: 10px; font-weight: 600;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+
+    /* ── LINKS GRID ───────────────────────────────────────── */
+    .links-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 8px;
+    }
+    .link-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 12px;
+      border: 1px solid var(--border); border-radius: 7px;
+      text-decoration: none; color: var(--text); font-size: 13px;
+      transition: border-color 100ms, background 100ms;
+    }
+    .link-item:hover { border-color: var(--accent); background: var(--accent-t); }
+    .link-ic { font-size: 14px; flex-shrink: 0; }
+    .link-name { font-weight: 500; font-size: 12px; line-height: 1.3; }
+    .link-desc { font-size: 11px; color: var(--faint); }
+
+    /* ── MATURITY ─────────────────────────────────────────── */
+    .maturity-header {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      margin-bottom: 20px;
+    }
+    .mat-num {
+      font-size: 48px; font-weight: 700; color: var(--accent);
+      letter-spacing: -0.03em; line-height: 1;
+    }
+    .mat-of   { font-size: 18px; color: var(--faint); font-weight: 500; }
+    .mat-label{ font-size: 12px; color: var(--faint); }
+
+    .bar-list { display: flex; flex-direction: column; gap: 12px; }
+    .bar-row  { display: flex; flex-direction: column; gap: 5px; }
+    .bar-meta { display: flex; align-items: center; justify-content: space-between; font-size: 13px; }
+    .bar-left { display: flex; align-items: center; gap: 6px; }
+    .bar-name { color: var(--text); }
+    .bar-score{ font-family: var(--mono); font-size: 11px; color: var(--faint); }
+    .bar-track{ height: 3px; background: rgba(255,255,255,0.06); border-radius: 2px; overflow: hidden; }
+    .bar-fill { height: 100%; border-radius: 2px; transition: width 0.65s cubic-bezier(0.4,0,0.2,1); }
+    .bf-high  { background: var(--accent); }
+    .bf-mid   { background: var(--amber); }
+    .bf-low   { background: var(--red); }
+
+    /* Tooltip */
+    .tip-wrap { position: relative; display: inline-flex; }
+    .tip-btn {
+      width: 14px; height: 14px; border-radius: 50%;
+      background: var(--surface); border: 1px solid var(--border);
+      color: var(--faint); font-size: 9px; font-weight: 700;
+      cursor: pointer; display: inline-flex; align-items: center; justify-content: center;
+      font-family: var(--font); transition: border-color 100ms, color 100ms;
+    }
+    .tip-btn:hover, .tip-btn.open { border-color: var(--accent); color: #9ba8f5; }
+    .tip-popup {
+      position: absolute;
+      bottom: calc(100% + 7px); left: 50%;
+      transform: translateX(-50%) translateY(4px);
+      width: 260px;
+      background: #1c1c22;
+      border: 1px solid var(--border-s);
+      border-radius: 8px;
+      padding: 10px 13px;
+      font-size: 12px; line-height: 1.55; color: var(--text);
+      z-index: 200; pointer-events: none;
+      opacity: 0; transition: opacity 0.12s, transform 0.12s;
+      white-space: normal; text-align: left;
+    }
+    .tip-popup::after {
+      content: ''; position: absolute;
+      top: 100%; left: 50%; transform: translateX(-50%);
+      border: 5px solid transparent;
+      border-top-color: var(--border-s);
+    }
+    .tip-wrap:hover .tip-popup, .tip-wrap.open .tip-popup {
+      opacity: 1; transform: translateX(-50%) translateY(0); pointer-events: auto;
+    }
+    .tip-title { font-weight: 600; color: #9ba8f5; font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
+
+    /* ── DATA TABLE ───────────────────────────────────────── */
+    .data-table { width: 100%; border-collapse: collapse; }
+    .data-table th {
+      text-align: left; font-size: 11px; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.07em;
+      color: var(--faint); padding: 10px 14px; border-bottom: 1px solid var(--border);
+    }
+    .data-table td { padding: 9px 14px; font-size: 13px; border-bottom: 1px solid var(--border); }
+    .data-table tr:last-child td { border-bottom: none; }
+    .data-table tr:hover td { background: var(--surface-h); }
+    .cell-mono { font-family: var(--mono); font-size: 11px; color: var(--faint); }
+    .cell-bold { font-weight: 500; }
+
+    /* ── PARTICIPANT CARDS ────────────────────────────────── */
+    .p-cards { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; }
+    .p-card {
+      border: 1px solid var(--border); border-radius: 8px; overflow: hidden;
+      transition: border-color 100ms;
+    }
+    .p-card:hover { border-color: var(--border-s); }
+    .p-head {
+      display: flex; align-items: center; gap: 10px;
+      padding: 14px 14px 12px; border-bottom: 1px solid var(--border);
+    }
+    .avatar {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), #7c6fd4);
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 700; font-size: 14px; flex-shrink: 0;
+    }
+    .p-name    { font-weight: 600; font-size: 13px; }
+    .p-handle  { font-size: 11px; color: var(--faint); font-family: var(--mono); margin-top: 1px; }
+    .p-role    {
+      display: inline-block; margin-top: 4px;
+      font-size: 10px; color: #9ba8f5; background: var(--accent-t);
+      border: 1px solid rgba(94,106,210,0.25);
+      padding: 1px 6px; border-radius: 4px; font-weight: 500;
+    }
+    .p-body { padding: 0; }
+    .p-task {
+      display: flex; align-items: flex-start; gap: 8px;
+      padding: 8px 14px; border-bottom: 1px solid var(--border);
+      font-size: 12px;
+    }
+    .p-task:last-child { border-bottom: none; }
+    .p-task-id { font-family: var(--mono); font-size: 10px; color: var(--faint); flex-shrink: 0; margin-top: 1px; }
+    .p-note { font-size: 11px; color: var(--faint); font-style: italic; padding: 8px 14px; }
+
+    /* ── TECH / GUARDIAN ──────────────────────────────────── */
+    .phase-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 24px; }
+    .phase-card {
+      border: 1px solid var(--border); border-radius: 8px; padding: 16px;
+      transition: border-color 100ms; position: relative; overflow: hidden;
+    }
+    .phase-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; }
+    .phase-card.ph-active::before  { background: var(--accent); }
+    .phase-card.ph-pending::before { background: var(--faint); opacity: 0.4; }
+    .phase-card:hover { border-color: var(--border-s); }
+    .phase-n  { font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; color: var(--faint); margin-bottom: 4px; }
+    .phase-nm { font-size: 14px; font-weight: 600; margin-bottom: 6px; }
+    .phase-d  { font-size: 12px; color: var(--muted); line-height: 1.55; margin-bottom: 12px; }
+
+    /* ── ARCH PRINCIPLES ──────────────────────────────────── */
+    .arch-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .arch-card {
+      border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px;
+      transition: border-color 100ms;
+    }
+    .arch-card:hover { border-color: var(--border-s); }
+    .arch-title { font-size: 13px; font-weight: 600; margin-bottom: 5px; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+    .arch-desc  { font-size: 12px; color: var(--muted); line-height: 1.55; }
+
+    /* ── MOBILE ───────────────────────────────────────────── */
+    @media (max-width: 768px) {
+      body { flex-direction: column; }
+      .sidebar {
+        width: 100%; height: auto; position: static;
+        border-right: none; border-bottom: 1px solid var(--border);
+        flex-direction: row; align-items: center;
+        overflow-x: auto; overflow-y: hidden;
+        scrollbar-width: none;
+      }
+      .sidebar::-webkit-scrollbar { display: none; }
+      .sidebar-logo { border-bottom: none; border-right: 1px solid var(--border); padding: 12px 14px; }
+      .logo-team { display: none; }
+      .sidebar-section { display: flex; padding: 8px; gap: 2px; }
+      .sidebar-section-label { display: none; }
+      .sidebar-footer { display: none; }
+      .nav-badge { display: none; }
+      .nav-item { padding: 6px 10px; white-space: nowrap; }
+      .nav-item .nav-icon { display: none; }
+      .main { min-height: 0; }
+      .topbar { padding: 0 16px; }
+      .content { padding: 20px 16px 48px; }
+      .stats-row { grid-template-columns: 1fr 1fr; }
+      .p-cards, .phase-grid, .arch-grid { grid-template-columns: 1fr; }
+      .data-table th:nth-child(2),
+      .data-table td:nth-child(2) { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── SIDEBAR ─────────────────────────────────────────────── -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-mark">IC</div>
+    <div>
+      <div class="logo-name">IC.TP</div>
+      <div class="logo-team">ЦИР · КУ 2.0</div>
+    </div>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">Навигация</div>
+    <div class="nav-item active" data-panel="overview">
+      <span class="nav-icon">⊞</span> Сводная
+    </div>
+    <div class="nav-item" data-panel="methodology">
+      <span class="nav-icon">◈</span> Методология
+    </div>
+    <div class="nav-item" data-panel="participants">
+      <span class="nav-icon">◎</span> Участники <span class="nav-badge">3</span>
+    </div>
+    <div class="nav-item" data-panel="tools">
+      <span class="nav-icon">⚙</span> Инструменты
+    </div>
+  </div>
+
+  <div class="sidebar-footer">
+    <div class="sidebar-date" id="sidebar-date"></div>
+  </div>
+</aside>
+
+<!-- ── MAIN ───────────────────────────────────────────────────── -->
+<div class="main">
+  <div class="topbar">
+    <span class="topbar-title" id="topbar-title">Сводная</span>
+    <div class="topbar-meta">
+      <span id="topbar-date"></span>
+      <button class="refresh-btn" onclick="location.reload()">Обновить</button>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- ══════════════════════════ PANEL: OVERVIEW -->
+    <div id="overview" class="panel active">
+
+      <div class="stats-row">
+        <div class="stat">
+          <div class="stat-label">До дедлайна</div>
+          <div class="stat-value c-amber" id="kpi-days"></div>
+          <div class="stat-sub">1 июля 2026</div>
+        </div>
+        <div class="stat clickable" data-panel="participants">
+          <div class="stat-label">Открытых задач</div>
+          <div class="stat-value c-accent">3</div>
+          <div class="stat-sub">#15 · #19 · #21 →</div>
+        </div>
+        <div class="stat clickable" data-panel="methodology">
+          <div class="stat-label">Индекс зрелости</div>
+          <div class="stat-value c-green">5.1</div>
+          <div class="stat-sub">из 10 →</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">До след. milestone</div>
+          <div class="stat-value c-accent" id="kpi-ms"></div>
+          <div class="stat-sub">Сценарий онбординга</div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-head"><span class="section-label">Дорожная карта</span></div>
+        <div class="ms-list">
+          <div class="ms-row">
+            <span class="status-dot sd-done"></span>
+            <span class="ms-name">Онбординг ЦИРа</span>
+            <span class="ms-date">05.06.2026</span>
+            <span class="issue-tag tag-green">Закрыт</span>
+          </div>
+          <div class="ms-row">
+            <span class="status-dot sd-active"></span>
+            <span class="ms-name">Рамка готова</span>
+            <span class="ms-date">15.06.2026</span>
+            <span class="issue-tag tag-accent">Закрывается</span>
+          </div>
+          <div class="ms-row">
+            <span class="status-dot sd-pending"></span>
+            <span class="ms-name">Сценарий онбординга</span>
+            <span class="ms-date">25.06.2026</span>
+            <span class="issue-tag tag-muted">Следующий</span>
+          </div>
+          <div class="ms-row">
+            <span class="status-dot sd-pending"></span>
+            <span class="ms-name">Передача в проект</span>
+            <span class="ms-date">01.07.2026</span>
+            <span class="issue-tag tag-muted">Дедлайн</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-head"><span class="section-label">Решения встречи 15.06</span></div>
+        <div class="decision-list">
+          <div class="decision-row"><span class="decision-code">А-6</span><span>Команда готова к запуску Стража Scope (Фаза 2)</span></div>
+          <div class="decision-row"><span class="decision-code">А-2</span><span>Формат карточки: JSON — машиночитаемый, Страж валидирует структуру</span></div>
+          <div class="decision-row"><span class="decision-code">О-3</span><span>Минимальный результат встречи: следующий шаг с ответственным</span></div>
+          <div class="decision-row"><span class="decision-code">О-4</span><span>Прототипы — только в личном репо, граница ситуативная</span></div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-head"><span class="section-label">Ближайшие шаги</span></div>
+        <div class="step-list">
+          <div class="step-row"><span class="step-n">1</span><span>Закрыть Issue #17 и Milestone «Рамка готова»</span></div>
+          <div class="step-row"><span class="step-n">2</span><span>Смержить PR #26 (Страж Phase 1) в main</span></div>
+          <div class="step-row"><span class="step-n">3</span><span>Настроить Telegram-бота (Страж Phase 2 — Scope Monitor)</span></div>
+          <div class="step-row"><span class="step-n">4</span><span>Перейти к Milestone «Сценарий онбординга»</span></div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-head"><span class="section-label">Быстрые ссылки</span></div>
+        <div class="links-grid">
+          <a class="link-item" href="https://github.com/denisrudomanenko-stack/IC.TP/issues" target="_blank"><span class="link-ic">📋</span><div><div class="link-name">GitHub Issues</div><div class="link-desc">Задачи и обсуждения</div></div></a>
+          <a class="link-item" href="https://github.com/denisrudomanenko-stack/IC.TP/pull/26" target="_blank"><span class="link-ic">🔀</span><div><div class="link-name">PR #26 — Страж</div><div class="link-desc">На ревью команды</div></div></a>
+          <a class="link-item" href="https://github.com/denisrudomanenko-stack/IC.TP/blob/main/deliverables/target-result.md" target="_blank"><span class="link-ic">🎯</span><div><div class="link-name">Образ результата</div><div class="link-desc">target-result.md · v0.2</div></div></a>
+          <a class="link-item" href="https://github.com/denisrudomanenko-stack/IC.TP/blob/main/deliverables/ic-tp-briefing-for-artur.md" target="_blank"><span class="link-ic">📄</span><div><div class="link-name">Справка для Артура</div><div class="link-desc">ic-tp-briefing-for-artur.md</div></div></a>
+          <a class="link-item" href="https://github.com/denisrudomanenko-stack/IC.TP/blob/main/log/decisions.md" target="_blank"><span class="link-ic">📝</span><div><div class="link-name">Лог решений</div><div class="link-desc">log/decisions.md</div></div></a>
+          <a class="link-item" href="https://github.com/denisrudomanenko-stack/IC.TP/tree/main/context/methodology" target="_blank"><span class="link-ic">📚</span><div><div class="link-name">Корпус методологии</div><div class="link-desc">5 файлов</div></div></a>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ══════════════════════════ PANEL: METHODOLOGY -->
+    <div id="methodology" class="panel">
+
+      <div class="section">
+        <div class="maturity-header">
+          <div class="mat-num" id="mat-avg">5.1</div>
+          <div><div class="mat-of">/ 10</div><div class="mat-label">Индекс зрелости</div></div>
+        </div>
+        <div class="bar-list" id="mat-bars"></div>
+      </div>
+
+      <div class="section">
+        <div class="section-head"><span class="section-label">Методологический корпус</span></div>
+        <div class="issue-list">
+          <div class="issue-row"><span class="status-dot sd-done"></span><span class="issue-id"></span><span class="issue-title">ArchiMate — язык архитектурного описания</span><span class="cell-mono">archimate.md</span><span class="issue-tag tag-green" style="margin-left:10px">Загружен</span></div>
+          <div class="issue-row"><span class="status-dot sd-done"></span><span class="issue-id"></span><span class="issue-title">TOGAF-ADM — управление архитектурным переходом</span><span class="cell-mono">togaf-adm.md</span><span class="issue-tag tag-green" style="margin-left:10px">Загружен</span></div>
+          <div class="issue-row"><span class="status-dot sd-done"></span><span class="issue-id"></span><span class="issue-title">Идеализированное проектирование (Акофф)</span><span class="cell-mono">idealized-design.md</span><span class="issue-tag tag-green" style="margin-left:10px">Загружен</span></div>
+          <div class="issue-row"><span class="status-dot sd-done"></span><span class="issue-id"></span><span class="issue-title">СМД-методология (Щедровицкий)</span><span class="cell-mono">smd-shchedrovitsky.md</span><span class="issue-tag tag-green" style="margin-left:10px">Загружен</span></div>
+          <div class="issue-row"><span class="status-dot sd-done"></span><span class="issue-id"></span><span class="issue-title">Кооперация — принципы совместной работы</span><span class="cell-mono">cooperation.md</span><span class="issue-tag tag-green" style="margin-left:10px">Загружен</span></div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-head"><span class="section-label">Ключевые артефакты</span></div>
+        <div class="issue-list">
+          <div class="issue-group-head">Готово</div>
+          <div class="issue-row"><span class="status-dot sd-done"></span><span class="issue-id"></span><span class="issue-title">Образ результата</span><span class="cell-mono">target-result.md</span><span class="issue-tag tag-accent" style="margin-left:10px">v0.2</span></div>
+          <div class="issue-row"><span class="status-dot sd-done"></span><span class="issue-id"></span><span class="issue-title">Страж — концепт</span><span class="cell-mono">guardian/concept.html</span><span class="issue-tag tag-accent" style="margin-left:10px">v0.2</span></div>
+          <div class="issue-row"><span class="status-dot sd-done"></span><span class="issue-id"></span><span class="issue-title">Сценарий онбординга</span><span class="cell-mono">onboarding-scenario.md</span><span class="issue-tag tag-accent" style="margin-left:10px">v1</span></div>
+          <div class="issue-row"><span class="status-dot sd-done"></span><span class="issue-id"></span><span class="issue-title">Роли и позиции</span><span class="cell-mono">roles-and-positions.md</span><span class="issue-tag tag-accent" style="margin-left:10px">v1</span></div>
+          <div class="issue-row"><span class="status-dot sd-done"></span><span class="issue-id"></span><span class="issue-title">Справка для Артура</span><span class="cell-mono">ic-tp-briefing-for-artur.md</span><span class="issue-tag tag-accent" style="margin-left:10px">v1</span></div>
+          <div class="issue-group-head">В работе</div>
+          <div class="issue-row"><span class="status-dot sd-active"></span><span class="issue-id">PR#26</span><span class="issue-title">Страж — Гигиена (Phase 1)</span><span class="cell-mono">guardian-hygiene.yml</span><span class="issue-tag tag-amber" style="margin-left:10px">На ревью</span></div>
+          <div class="issue-row"><span class="status-dot sd-amber"></span><span class="issue-id"></span><span class="issue-title">Механизм рефлексии</span><span class="cell-mono">reflection-mechanism.md</span><span class="issue-tag tag-amber" style="margin-left:10px">Черновик v3</span></div>
+          <div class="issue-row"><span class="status-dot sd-amber"></span><span class="issue-id"></span><span class="issue-title">5-слойная архитектура переговорной</span><span class="cell-mono">negotiation-room-architecture.html</span><span class="issue-tag tag-amber" style="margin-left:10px">К обсуждению</span></div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ══════════════════════════ PANEL: PARTICIPANTS -->
+    <div id="participants" class="panel">
+
+      <div class="section">
+        <div class="section-head"><span class="section-label">Команда ЦИРа</span></div>
+        <div class="p-cards">
+          <div class="p-card">
+            <div class="p-head">
+              <div class="avatar">Д</div>
+              <div>
+                <div class="p-name">Денис Рудоманенко</div>
+                <div class="p-handle">@denisrudomanenko-stack</div>
+                <div class="p-role">Методолог</div>
+              </div>
+            </div>
+            <div class="p-body">
+              <div class="p-task"><span class="p-task-id">#15</span><span>Ревью концепции Activity Tracker</span></div>
+              <div class="p-task"><span class="p-task-id">PR#26</span><span>Ревью Стража Phase 1</span></div>
+              <div class="p-task"><span class="p-task-id">→</span><span>Закрыть Milestone «Рамка готова»</span></div>
+            </div>
+          </div>
+          <div class="p-card">
+            <div class="p-head">
+              <div class="avatar" style="background:linear-gradient(135deg,#0891b2,#5e6ad2)">А</div>
+              <div>
+                <div class="p-name">Алексей Шарненков</div>
+                <div class="p-handle">@sharnenkov</div>
+                <div class="p-role">Реализатор</div>
+              </div>
+            </div>
+            <div class="p-body">
+              <div class="p-task"><span class="p-task-id">#21</span><span>Тест Белбина — командные роли</span></div>
+              <div class="p-task"><span class="p-task-id">#19</span><span>Рецензия: концепт интерфейса</span></div>
+              <div class="p-note">Участвует заочно с 15.06</div>
+            </div>
+          </div>
+          <div class="p-card">
+            <div class="p-head">
+              <div class="avatar" style="background:linear-gradient(135deg,#4caf7d,#0891b2)">Б</div>
+              <div>
+                <div class="p-name">Бронислав</div>
+                <div class="p-handle">@Bronislav28</div>
+                <div class="p-role">Разработчик</div>
+              </div>
+            </div>
+            <div class="p-body">
+              <div class="p-task"><span class="p-task-id">#15</span><span>Ревью концепции Activity Tracker</span></div>
+              <div class="p-task"><span class="p-task-id">#21</span><span>Тест Белбина — командные роли</span></div>
+              <div class="p-task"><span class="p-task-id">→</span><span>Развитие Activity Tracker</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-head"><span class="section-label">Расширенная команда</span></div>
+        <div class="issue-list">
+          <div class="issue-row"><div class="avatar" style="width:28px;height:28px;font-size:11px;background:linear-gradient(135deg,#e8a838,#f97316)">А</div><span class="issue-title" style="font-weight:500">Артур Очеретный</span><span class="issue-meta">Держатель замысла · подключается на MVP</span></div>
+          <div class="issue-row"><div class="avatar" style="width:28px;height:28px;font-size:11px;background:linear-gradient(135deg,#8b5cf6,#5e6ad2)">А</div><span class="issue-title" style="font-weight:500">Андрей Алексахин</span><span class="issue-meta">Продюсер / VP Трансформации</span></div>
+          <div class="issue-row"><div class="avatar" style="width:28px;height:28px;font-size:11px;background:linear-gradient(135deg,#0891b2,#22d3ee)">А</div><span class="issue-title" style="font-weight:500">Антон Стасенок</span><span class="issue-meta">Технология — инфраструктура, модели</span></div>
+          <div class="issue-row"><div class="avatar" style="width:28px;height:28px;font-size:11px;background:linear-gradient(135deg,#4caf7d,#0891b2)">П</div><span class="issue-title" style="font-weight:500">Полина</span><span class="issue-meta">PMO эксперимента</span></div>
+          <div class="issue-row"><div class="avatar" style="width:28px;height:28px;font-size:11px;background:linear-gradient(135deg,#ec4899,#8b5cf6)">Е</div><span class="issue-title" style="font-weight:500">Екатерина</span><span class="issue-meta">Дизайн пространства Holst</span></div>
+        </div>
+      </div>
+    </div>
+
+
+    <!-- ══════════════════════════ PANEL: TOOLS -->
+    <div id="tools" class="panel">
+
+      <div class="section">
+        <div class="section-head"><span class="section-label">Страж (Guardian)</span></div>
+        <div class="phase-grid">
+          <div class="phase-card ph-active">
+            <div class="phase-n">Фаза 1</div>
+            <div class="phase-nm">Гигиена репозитория</div>
+            <div class="phase-d">Детерминированные проверки: структура файлов, метаданные, правила PR. Запускается при каждом pull request.</div>
+            <span class="issue-tag tag-accent">PR #26 на ревью</span>
+          </div>
+          <div class="phase-card ph-pending">
+            <div class="phase-n">Фаза 2</div>
+            <div class="phase-nm">Scope Monitor</div>
+            <div class="phase-d">Семантический мониторинг через Telegram-бота. Сигнализирует о несоответствии артефактов образу результата.</div>
+            <span class="issue-tag tag-muted">После смержа Phase 1</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-head"><span class="section-label">Технологический стек</span></div>
+        <div class="issue-list">
+          <table class="data-table">
+            <thead><tr><th>Инструмент</th><th>Роль</th><th>Статус</th></tr></thead>
+            <tbody>
+              <tr><td class="cell-bold">GitHub</td><td style="color:var(--muted)">Единая точка истины — артефакты, история, API</td><td><span class="issue-tag tag-green">Работает</span></td></tr>
+              <tr><td class="cell-bold">Holst / Miro</td><td style="color:var(--muted)">Визуальная среда. API — конец 2026</td><td><span class="issue-tag tag-amber">Ручная синх.</span></td></tr>
+              <tr><td class="cell-bold">GitHub Actions</td><td style="color:var(--muted)">Триггеры Стража при PR</td><td><span class="issue-tag tag-accent">PR #26</span></td></tr>
+              <tr><td class="cell-bold">Claude API</td><td style="color:var(--muted)">Ядро агентов. Модельно-независимая архитектура</td><td><span class="issue-tag tag-green">Используется</span></td></tr>
+              <tr><td class="cell-bold">MCP</td><td style="color:var(--muted)">Стандарт подключения агентов к инструментам</td><td><span class="issue-tag tag-green">Используется</span></td></tr>
+              <tr><td class="cell-bold">Yandex Calendar</td><td style="color:var(--muted)">Синхронизация встреч. Суверенный инструмент</td><td><span class="issue-tag tag-green">Подключён</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="section">
+        <div class="section-head"><span class="section-label">Архитектурные принципы</span></div>
+        <div class="arch-grid">
+          <div class="arch-card"><div class="arch-title">Модельная независимость <span class="issue-tag tag-green">✓</span></div><div class="arch-desc">Замена Claude → YandexGPT — одна строка конфига. Нет привязки к провайдеру.</div></div>
+          <div class="arch-card"><div class="arch-title">Данные на своём контуре <span class="issue-tag tag-green">✓</span></div><div class="arch-desc">Репозиторий закрытый, нет передачи данных в SaaS. Совместимо с банковскими требованиями.</div></div>
+          <div class="arch-card"><div class="arch-title">Открытые протоколы <span class="issue-tag tag-green">✓</span></div><div class="arch-desc">MCP как стандарт взаимодействия агентов. Нет зависимости от проприетарных решений.</div></div>
+          <div class="arch-card"><div class="arch-title">Holst без API <span class="issue-tag tag-amber">⚠</span></div><div class="arch-desc">GitHub — backend, Holst — визуальный фронтенд с ручной синхронизацией. Временно, не тупик.</div></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+
+<script>
+  // ── Navigation ─────────────────────────────────────────
+  const titles = { overview:'Сводная', methodology:'Методология', participants:'Участники', tools:'Инструменты' };
+
+  function switchPanel(id) {
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.toggle('active', n.dataset.panel === id));
+    document.querySelectorAll('.panel').forEach(p => p.classList.toggle('active', p.id === id));
+    document.getElementById('topbar-title').textContent = titles[id] || id;
+  }
+
+  document.querySelectorAll('.nav-item').forEach(n => {
+    n.addEventListener('click', () => switchPanel(n.dataset.panel));
+  });
+  document.querySelectorAll('.stat.clickable').forEach(s => {
+    s.addEventListener('click', () => switchPanel(s.dataset.panel));
+  });
+
+  // ── Dates ──────────────────────────────────────────────
+  const today    = new Date();
+  const deadline = new Date('2026-07-01');
+  const nextMs   = new Date('2026-06-25');
+  const diffDays = (a, b) => Math.max(0, Math.ceil((b - a) / 86400000));
+  const fmt = d => d.toLocaleDateString('ru-RU', { day:'2-digit', month:'2-digit', year:'numeric' });
+
+  document.getElementById('sidebar-date').textContent = fmt(today);
+  document.getElementById('topbar-date').textContent  = fmt(today);
+
+  const dDays = diffDays(today, deadline);
+  const kpi   = document.getElementById('kpi-days');
+  kpi.textContent = dDays;
+  if (dDays <= 7) kpi.className = 'stat-value c-red';
+  document.getElementById('kpi-ms').textContent = diffDays(today, nextMs);
+
+  // ── Maturity bars ──────────────────────────────────────
+  const dims = [
+    { name:'Методологическая рамка', score:8.5, tip:'5 из 5 файлов корпуса загружены: ArchiMate, TOGAF-ADM, Акофф, СМД, Кооперация. Адаптированы к задаче.' },
+    { name:'Команда',                score:6.5, tip:'Трое с агентами. Денис ведёт методологию, Бронислав и Алексей — реализация. Позиции формируются после первой встречи.' },
+    { name:'Артефакты',              score:5.5, tip:'Образ результата v0.2 заполнен, страж-концепт и онбординг готовы. Механизм рефлексии — черновик.' },
+    { name:'Динамика реализации',    score:4.5, tip:'Встреча 15.06 прошла, PR #26 в работе. До дедлайна ~14 дней, два milestone впереди.' },
+    { name:'Процесс рефлексии',      score:3.5, tip:'Первая рефлексия зафиксирована (Бронислав). Механизм описан в v3. Регулярного ритма ещё нет.' },
+    { name:'Готовность к передаче',  score:2.0, tip:'Рубен пока не вовлечён. Пакет передачи не сформирован. Запланировано на 01.07.' },
+  ];
+
+  const avg = (dims.reduce((s,d)=>s+d.score,0)/dims.length).toFixed(1);
+  document.getElementById('mat-avg').textContent = avg;
+
+  const barsEl = document.getElementById('mat-bars');
+  dims.forEach((d,i) => {
+    const cls = d.score>=7?'bf-high':d.score>=4?'bf-mid':'bf-low';
+    const id  = `t${i}`;
+    barsEl.insertAdjacentHTML('beforeend',`
+      <div class="bar-row">
+        <div class="bar-meta">
+          <div class="bar-left">
+            <span class="bar-name">${d.name}</span>
+            <span class="tip-wrap" id="${id}">
+              <button class="tip-btn">?</button>
+              <div class="tip-popup"><div class="tip-title">Как считается</div>${d.tip}</div>
+            </span>
+          </div>
+          <span class="bar-score">${d.score}/10</span>
+        </div>
+        <div class="bar-track"><div class="bar-fill ${cls}" style="width:0%"></div></div>
+      </div>`);
+
+    const wrap = document.getElementById(id);
+    wrap.querySelector('.tip-btn').addEventListener('click', e => {
+      e.stopPropagation();
+      const open = wrap.classList.toggle('open');
+      if (open) document.querySelectorAll('.tip-wrap.open').forEach(w => { if(w!==wrap) w.classList.remove('open'); });
+    });
+  });
+
+  document.addEventListener('click', () => {
+    document.querySelectorAll('.tip-wrap.open').forEach(w => w.classList.remove('open'));
+  });
+
+  requestAnimationFrame(() => {
+    document.querySelectorAll('.bar-fill').forEach((el,i) => {
+      setTimeout(() => { el.style.width = dims[i].score*10+'%'; }, i*60);
+    });
+  });
+</script>
+</body>
+</html>
