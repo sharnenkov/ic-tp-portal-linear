@@ -63,6 +63,19 @@
       position: sticky;
       top: 0;
       overflow-y: auto;
+      overflow-x: hidden;
+    }
+
+    .sidebar::after {
+      content: '';
+      position: fixed;
+      top: 0;
+      right: calc(100% - var(--sidebar-w));
+      width: calc(var(--sidebar-w) * 0.25);
+      height: 100vh;
+      background: linear-gradient(90deg, transparent 0%, var(--sidebar-bg) 100%);
+      pointer-events: none;
+      z-index: 1;
     }
 
     .sidebar-logo {
