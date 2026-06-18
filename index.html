@@ -64,18 +64,19 @@
       top: 0;
       overflow-y: auto;
       overflow-x: hidden;
+      position: relative;
     }
 
     .sidebar::after {
       content: '';
-      position: fixed;
+      position: absolute;
       top: 0;
-      right: calc(100% - var(--sidebar-w));
+      right: 0;
       width: calc(var(--sidebar-w) * 0.25);
-      height: 100vh;
+      height: 100%;
       background: linear-gradient(90deg, transparent 0%, var(--sidebar-bg) 100%);
       pointer-events: none;
-      z-index: 1;
+      z-index: 10;
     }
 
     .sidebar-logo {
